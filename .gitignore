@@ -1,0 +1,9 @@
+.env
+.env.*
+!.env.example
+app_key.txt
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.streamlit/secrets.toml

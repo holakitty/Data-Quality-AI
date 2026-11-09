@@ -1,0 +1,12 @@
+[
+  {"row_id": 101, "age": 7, "education": "PhD", "rural_urban": "Rural", "village": null, "salary": 0, "department": "Unknown", "email": "invalid-email", "phone": "123", "date_joined": "2028-03-15"},
+  {"row_id": 102, "age": 150, "education": "BSc", "rural_urban": "Urban", "village": "N/A", "salary": -5000, "department": "", "email": "notanemail", "phone": "555", "date_joined": "2020-01-01"},
+  {"row_id": 103, "age": null, "education": "MSc", "rural_urban": "Rural", "village": null, "salary": null, "department": null, "email": "", "phone": "", "date_joined": null},
+  {"row_id": 104, "age": 999, "education": "BSc", "rural_urban": "Urban", "village": "N/A", "salary": 999999999, "department": "Test", "email": "test@", "phone": "0000000000", "date_joined": "2099-12-31"},
+  {"row_id": 105, "age": 25, "education": "BSc", "rural_urban": "Rural", "village": null, "salary": 40000, "department": "Sales", "email": "user@domain.com", "phone": "5551234567", "date_joined": "2022-01-01"},
+  {"row_id": 106, "age": -5, "education": "PhD", "rural_urban": "Urban", "village": "N/A", "salary": -100, "department": "Finance", "email": "@@@.com", "phone": "abc", "date_joined": "invalid-date"},
+  {"row_id": 107, "age": 30, "education": "BSc", "rural_urban": "Unknown", "village": "N/A", "salary": 45000, "department": "Operations", "email": "valid@email.com", "phone": "5559876543", "date_joined": "2021-06-01"},
+  {"row_id": 108, "age": 35, "education": null, "rural_urban": "Rural", "village": null, "salary": 55000, "department": "Marketing", "email": "test@test.com", "phone": "5551112222", "date_joined": "2020-03-15"},
+  {"row_id": 109, "age": 28, "education": "MSc", "rural_urban": "Rural", "village": null, "salary": 60000, "department": "Research", "email": "data@science.io", "phone": "5553334444", "date_joined": "2019-07-22"},
+  {"row_id": 110, "age": 200, "education": "BSc", "rural_urban": "Urban", "village": "N/A", "salary": 50000, "department": "Engineering", "email": "eng@company.com", "phone": "5555556666", "date_joined": "2018-11-14"}
+]

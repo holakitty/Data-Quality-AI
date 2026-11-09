@@ -1,0 +1,17 @@
+[
+  {"row_id": 1, "age": 28, "education": "BSc", "rural_urban": "Urban", "village": "N/A", "salary": 45000, "department": "Engineering", "email": "john@example.com", "phone": "5551234567", "date_joined": "2020-03-15"},
+  {"row_id": 2, "age": 35, "education": "MSc", "rural_urban": "Urban", "village": "N/A", "salary": 62000, "department": "Marketing", "email": "jane@example.com", "phone": "5559876543", "date_joined": "2019-07-22"},
+  {"row_id": 3, "age": 42, "education": "PhD", "rural_urban": "Rural", "village": "Greenfield", "salary": 78000, "department": "Research", "email": "dr.smith@example.com", "phone": "5551112222", "date_joined": "2015-01-10"},
+  {"row_id": 4, "age": 25, "education": "BSc", "rural_urban": "Rural", "village": "Maplewood", "salary": 38000, "department": "Operations", "email": "alex@example.com", "phone": "5553334444", "date_joined": "2021-06-01"},
+  {"row_id": 5, "age": 31, "education": "MBA", "rural_urban": "Urban", "village": "N/A", "salary": 55000, "department": "Finance", "email": "sarah@example.com", "phone": "5555556666", "date_joined": "2018-11-14"},
+  {"row_id": 6, "age": 29, "education": "BSc", "rural_urban": "Rural", "village": "Oakville", "salary": 41000, "department": "Sales", "email": "mike@example.com", "phone": "5557778888", "date_joined": "2022-02-20"},
+  {"row_id": 7, "age": 45, "education": "PhD", "rural_urban": "Urban", "village": "N/A", "salary": 95000, "department": "Research", "email": "prof.jones@example.com", "phone": "5559990000", "date_joined": "2010-04-05"},
+  {"row_id": 8, "age": 22, "education": "BSc", "rural_urban": "Urban", "village": "N/A", "salary": 35000, "department": "Support", "email": "lisa@example.com", "phone": "5554443333", "date_joined": "2023-08-12"},
+  {"row_id": 9, "age": 38, "education": "MSc", "rural_urban": "Rural", "village": "Pleasantville", "salary": 67000, "department": "Engineering", "email": "tom@example.com", "phone": "5556667777", "date_joined": "2017-03-28"},
+  {"row_id": 10, "age": 50, "education": "PhD", "rural_urban": "Urban", "village": "N/A", "salary": 110000, "department": "Research", "email": "dr.wilson@example.com", "phone": "5552221111", "date_joined": "2008-09-15"},
+  {"row_id": 11, "age": 27, "education": "BSc", "rural_urban": "Urban", "village": "N/A", "salary": 43000, "department": "Design", "email": "emma@example.com", "phone": "5558889999", "date_joined": "2021-01-30"},
+  {"row_id": 12, "age": 33, "education": "MSc", "rural_urban": "Rural", "village": "Hillcrest", "salary": 58000, "department": "Analytics", "email": "david@example.com", "phone": "5551239876", "date_joined": "2019-05-18"},
+  {"row_id": 13, "age": 26, "education": "BSc", "rural_urban": "Urban", "village": "N/A", "salary": 40000, "department": "HR", "email": "nancy@example.com", "phone": "5554567890", "date_joined": "2022-09-01"},
+  {"row_id": 14, "age": 41, "education": "PhD", "rural_urban": "Rural", "village": "Brookside", "salary": 82000, "department": "Research", "email": "dr.patel@example.com", "phone": "5557891234", "date_joined": "2014-12-03"},
+  {"row_id": 15, "age": 30, "education": "MBA", "rural_urban": "Urban", "village": "N/A", "salary": 60000, "department": "Management", "email": "chris@example.com", "phone": "5553216549", "date_joined": "2020-07-09"}
+]

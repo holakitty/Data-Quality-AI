@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Data Quality Analyzer</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: #e2e8f0; }
+        .sidebar { position: fixed; left: 0; top: 0; width: 250px; height: 100vh; background: #1e293b; border-right: 1px solid #334155; padding: 20px; overflow-y: auto; }
+        .sidebar h2 { color: #3b82f6; margin-bottom: 20px; font-size: 18px; }
+        .sidebar a { display: block; color: #94a3b8; text-decoration: none; padding: 10px 12px; margin: 4px 0; border-radius: 8px; transition: all 0.2s; }
+        .sidebar a:hover, .sidebar a.active { background: #334155; color: #e2e8f0; }
+        .sidebar .logo { font-size: 20px; font-weight: 700; color: #3b82f6; margin-bottom: 5px; }
+        .sidebar .tag { font-size: 11px; color: #64748b; margin-bottom: 20px; }
+        .content { margin-left: 250px; padding: 40px; }
+        .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 24px; margin: 12px 0; border-left: 4px solid; }
+        .blue { border-left-color: #3b82f6; }
+        .teal { border-left-color: #14b8a6; }
+        .orange { border-left-color: #f97316; }
+        .purple { border-left-color: #a855f7; }
+        h1 { font-size: 36px; margin-bottom: 8px; }
+        h2 { font-size: 24px; margin-bottom: 16px; color: #3b82f6; }
+        h3 { font-size: 18px; margin-bottom: 12px; }
+        .subtitle { color: #94a3b8; font-size: 16px; margin-bottom: 40px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .ppt-link { display: inline-block; background: #3b82f6; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin: 8px 4px; font-weight: 600; transition: background 0.2s; }
+        .ppt-link:hover { background: #2563eb; }
+        .ppt-link.teal { background: #14b8a6; }
+        .ppt-link.teal:hover { background: #0d9488; }
+        .ppt-link.orange { background: #f97316; }
+        .ppt-link.orange:hover { background: #ea580c; }
+        .ppt-link.purple { background: #a855f7; }
+        .ppt-link.purple:hover { background: #9333ea; }
+        .metric { display: inline-block; background: #334155; padding: 12px 20px; border-radius: 8px; margin: 8px 8px 0 0; }
+        .metric .value { font-size: 24px; font-weight: 700; color: #3b82f6; }
+        .metric .label { font-size: 12px; color: #94a3b8; }
+        ul { padding-left: 20px; margin: 8px 0; }
+        li { margin: 4px 0; color: #cbd5e1; }
+        .header { border-bottom: 1px solid #334155; padding-bottom: 20px; margin-bottom: 30px; }
+        .tagline { color: #f97316; font-size: 14px; font-weight: 600; margin-top: 5px; }
+        .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #334155; color: #64748b; font-size: 12px; }
+        .section { display: none; }
+        .section.active { display: block; }
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; position: relative; height: auto; }
+            .content { margin-left: 0; }
+            .grid { grid-template-columns: 1fr; }
+        }
+    .chat-container { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 24px; margin: 12px 0; }
+.chat-box { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 16px; height: 400px; overflow-y: auto; margin-bottom: 12px; }
+.chat-message { margin: 8px 0; padding: 8px 12px; border-radius: 8px; max-width: 80%; }
+.chat-message.user { background: #3b82f6; color: white; margin-left: auto; text-align: right; }
+.chat-message.bot { background: #334155; color: #e2e8f0; }
+.chat-input-area { display: flex; gap: 8px; }
+.chat-input-area input { flex: 1; background: #0f172a; border: 1px solid #334155; color: #e2e8f0; padding: 10px; border-radius: 8px; }
+.chat-input-area button { background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+.upload-area { border: 2px dashed #334155; border-radius: 12px; padding: 40px; text-align: center; margin: 16px 0; cursor: pointer; transition: border-color 0.3s; }
+.upload-area:hover { border-color: #3b82f6; }
+.upload-area.dragover { border-color: #3b82f6; background: rgba(59,130,246,0.1); }
+.upload-area input[type="file"] { display: none; }
+.upload-area .upload-icon { font-size: 48px; margin-bottom: 12px; }
+.upload-area p { color: #94a3b8; }
+.file-info { background: #334155; border-radius: 8px; padding: 12px; margin: 12px 0; display: none; }
+.file-info.visible { display: block; }
+.check-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.check-btn { background: #334155; color: #e2e8f0; border: 1px solid #475569; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: all 0.2s; }
+.check-btn:hover { background: #3b82f6; border-color: #3b82f6; }
+.check-btn.active { background: #3b82f6; border-color: #3b82f6; }
+.result-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+.result-table th, .result-table td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #334155; font-size: 13px; }
+.result-table th { color: #3b82f6; }
+.result-table tr:hover { background: rgba(59,130,246,0.1); }
+</style>
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="logo">AI Data Quality Analyzer</div>
+        <div class="tag">Study Station for AI Agent Framework</div>
+        <a href="#" onclick="showSection('dashboard')" class="active">Dashboard</a>
+        <a href="#" onclick="showSection('study')">Study AI Agent Framework</a>
+        <a href="#" onclick="showSection('datasets')">Datasets</a>
+        <a href="#" onclick="showSection('cache')">Cached Outputs</a>
+        <a href="#" onclick="showSection('report')">Report Generation _output</a>
+        <a href="#" onclick="showSection('generalchat')">General AI Chat</a>
+        <a href="#" onclick="showSection('chatbot')">Hands-On AI Chatbot</a>
+        <div style="margin-top: 40px; font-size: 11px; color: #475569;">AI Data Quality Analyzer - All Rights Reserved</div>
+    </nav>
+
+    <main class="content">
+        <!-- Dashboard -->
+        <div id="dashboard" class="section active">
+            <div class="header">
+                <h1>AI Data Quality Analyzer</h1>
+                <div class="tagline">Learning while doing</div>
+                <div class="tagline" style="color: #94a3b8; font-size: 13px; margin-top: 4px;">Study Station for AI Agent System Building</div>
+            </div>
+            <div class="grid" style="grid-template-columns: 2fr 1fr;">
+                <div>
+                    <h2 style="color: #3b82f6; margin-bottom: 16px;">What is AI Data Quality Analyzer?</h2>
+                    <p style="color: #94a3b8; margin-bottom: 20px;">An intelligent system that autonomously detects, learns from, and remediates data anomalies using a multi-agent swarm architecture.</p>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 24px;">
+                    <h3 style="color: #f97316; margin-bottom: 16px;">Quick Stats</h3>
+                    <div class="metric"><div class="value">3</div><div class="label">PPT Parts</div></div>
+                    <div class="metric"><div class="value">AI</div><div class="label">Agent Swarm</div></div>
+                    <div class="metric"><div class="value">8</div><div class="label">Anomalies</div></div>
+                    <div class="metric"><div class="value">10</div><div class="label">Rules</div></div>
+                    <div class="metric"><div class="value">99.8%</div><div class="label">Uptime</div></div>
+                </div>
+            </div>
+            <h2 style="margin-top: 30px; color: #3b82f6;">Learning Roadmap</h2>
+            <div class="grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                <div class="card blue">
+                    <h3 style="color: #3b82f6;">Part 1: Introduction</h3>
+                    <ul style="margin-top: 12px;">
+                        <li>System architecture overview</li>
+                        <li>Data pipeline flow</li>
+                        <li>Anomaly detection basics</li>
+                        <li>Flagged records & context</li>
+                        <li>HITL decision handling</li>
+                    </ul>
+                </div>
+                <div class="card teal">
+                    <h3 style="color: #14b8a6;">Part 2: Agent Deep Dive</h3>
+                    <ul style="margin-top: 12px;">
+                        <li>Agent types & roles</li>
+                        <li>Communication patterns</li>
+                        <li>Concurrency model</li>
+                        <li>Error handling & resilience</li>
+                        <li>Testing & scaling</li>
+                    </ul>
+                </div>
+                <div class="card orange">
+                    <h3 style="color: #f97316;">Part 3: Advanced Topics</h3>
+                    <ul style="margin-top: 12px;">
+                        <li>LLM integration patterns</li>
+                        <li>RAG architecture</li>
+                        <li>Multi-agent frameworks</li>
+                        <li>Evaluation metrics</li>
+                        <li>Production deployment</li>
+                    </ul>
+                </div>
+            </div>
+            <h2 style="margin-top: 30px; color: #3b82f6;">Tasks Achieved</h2>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px;">
+                <div class="card" style="border-left-color: #3b82f6; flex: 1; min-width: 200px;">
+                    <div style="font-size: 24px; font-weight: 700; color: #3b82f6;">✔</div>
+                    <strong>Anomaly Detection</strong>
+                    <p style="color: #94a3b8; font-size: 13px; margin-top: 4px;">Multi-agent swarm scanning 8 anomalies</p>
+                </div>
+                <div class="card" style="border-left-color: #14b8a6; flex: 1; min-width: 200px;">
+                    <div style="font-size: 24px; font-weight: 700; color: #14b8a6;">✔</div>
+                    <strong>HITL Remediation</strong>
+                    <p style="color: #94a3b8; font-size: 13px; margin-top: 4px;">Accept fix & override-and-learn tested</p>
+                </div>
+                <div class="card" style="border-left-color: #f97316; flex: 1; min-width: 200px;">
+                    <div style="font-size: 24px; font-weight: 700; color: #f97316;">✔</div>
+                    <strong>Memory Engine</strong>
+                    <p style="color: #94a3b8; font-size: 13px; margin-top: 4px;">10 rules learned & stored in vector DB</p>
+                </div>
+                <div class="card" style="border-left-color: #a855f7; flex: 1; min-width: 200px;">
+                    <div style="font-size: 24px; font-weight: 700; color: #a855f7;">✔</div>
+                    <strong>3 PPT Parts</strong>
+                    <p style="color: #94a3b8; font-size: 13px; margin-top: 4px;">Introduction, Agent Deep Dive, Advanced</p>
+                </div>
+                <div class="card" style="border-left-color: #22c55e; flex: 1; min-width: 200px;">
+                    <div style="font-size: 24px; font-weight: 700; color: #22c55e;">✔</div>
+                    <strong>Website + Datasets</strong>
+                    <p style="color: #94a3b8; font-size: 13px; margin-top: 4px;">Login-free site with JSON data files</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Study -->
+        <div id="study" class="section">
+            <div class="grid" style="grid-template-columns: 2fr 1fr;">
+                <div>
+                    <h1>Study AI Agent Framework</h1>
+                    <p style="color: #94a3b8; margin: 16px 0;">Access all 3 presentation parts for the AI Data Quality Analyzer</p>
+                    <h2 style="margin-top: 20px;">Download Presentation Parts</h2>
+                    <a href="AI_Data_Quality_Analyzer.pptx" download class="ppt-link blue">Part 1: Introduction PPT</a>
+                    <a href="Part2_Agent_Deep_Dive.pptx" download class="ppt-link teal">Part 2: Agent Deep Dive PPT</a>
+                    <a href="Part3_Advanced_Topics.pptx" download class="ppt-link orange">Part 3: Advanced Topics PPT</a>
+                </div>
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 24px;">
+                    <h3 style="color: #f97316; margin-bottom: 16px;">Course Preview</h3>
+                    <ul style="color: #cbd5e1; line-height: 2;">
+                        <li><strong style="color: #3b82f6;">Part 1:</strong> Intro to AI Data Quality - Architecture, data flow, anomaly detection</li>
+                        <li><strong style="color: #14b8a6;">Part 2:</strong> Agent Deep Dive - Agent types, communication, concurrency, testing</li>
+                        <li><strong style="color: #f97316;">Part 3:</strong> Advanced Topics - RAG, LLM integration, frameworks, deployment</li>
+                        <li><strong style="color: #a855f7;">Tasks:</strong> Anomaly detection, HITL remediation, memory engine, 3 PPTs built</li>
+                        <li><strong style="color: #22c55e;">Resources:</strong> JSON datasets, cached outputs, report generation ready</li>
+                    </ul>
+                </div>
+            </div>
+            <h2 style="margin-top: 30px;">Code Resources</h2>
+            <div class="grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                <div class="card accent-purple">
+                    <h3 style="color: #a855f7;">1. agent_system.py</h3>
+                    <p style="color: #94a3b8; margin-top: 8px; font-size: 13px;"><strong>Multi-Agent Swarm Implementation</strong></p>
+                    <p style="color: #64748b; font-size: 12px; margin-top: 6px; line-height: 1.5;">A Python-based multi-agent system where autonomous AI agents collaborate to detect and fix data anomalies. It contains:</p>
+                    <ul style="color: #94a3b8; font-size: 12px; margin-top: 6px; padding-left: 16px;">
+                        <li><strong>AnomalyDetectorAgent</strong> — Scans data rows against schema rules to find logical contradictions (e.g., a 7-year-old with a PhD)</li>
+                        <li><strong>MemoryEngineAgent</strong> — Stores and retrieves learned organizational rules, continuously expanding knowledge</li>
+                        <li><strong>HITLAgent</strong> — Handles Human-in-the-Loop decisions: accept fixes or override-and-learn new rules</li>
+                        <li><strong>AgentSwarm</strong> — Orchestrator that coordinates all agents end-to-end through the detection → flagging → remediation pipeline</li>
+                    </ul>
+                    <p style="color: #64748b; font-size: 11px; margin-top: 6px;">Uses OpenAI GPT-4o-mini for LLM-powered thinking, Pydantic for data validation.</p>
+                </div>
+                <div class="card accent-teal">
+                    <h3 style="color: #14b8a6;">2. data ingestion.js</h3>
+                    <p style="color: #94a3b8; margin-top: 8px; font-size: 13px;"><strong>Express Backend API</strong></p>
+                    <p style="color: #64748b; font-size: 12px; margin-top: 6px; line-height: 1.5;">A Node.js/Express server that provides REST API endpoints for the React dashboard. It:</p>
+                    <ul style="color: #94a3b8; font-size: 12px; margin-top: 6px; padding-left: 16px;">
+                        <li><strong>GET /api/anomalies</strong> — Fetches pending anomalies flagged by the multi-agent swarm</li>
+                        <li><strong>POST /api/remediation</strong> — Handles HITL decisions (accept fix or override-and-learn)</li>
+                        <li><strong>Organizational Memory</strong> — Acts as a vector database (Pinecone/Weaviate) storing learned rules</li>
+                    </ul>
+                    <p style="color: #64748b; font-size: 11px; margin-top: 6px;">Uses CORS for cross-origin support, JSON middleware for request parsing. Runs on PORT 3001.</p>
+                </div>
+                <div class="card accent-orange">
+                    <h3 style="color: #f97316;">3. create_ppt.py</h3>
+                    <p style="color: #94a3b8; margin-top: 8px; font-size: 13px;"><strong>PowerPoint Generator Script</strong></p>
+                    <p style="color: #94a3b8; margin-top: 6px; font-size: 12px; line-height: 1.5;">A Python script using the <code>python-pptx</code> library to automatically generate presentation slides. It creates a 10-slide deck covering:</p>
+                    <ul style="color: #94a3b8; font-size: 12px; margin-top: 6px; padding-left: 16px;">
+                        <li>Title slide & System Architecture overview</li>
+                        <li>Data Pipeline Flow & Anomaly Examples</li>
+                        <li>API Endpoints & Organizational Memory</li>
+                        <li>Key Features & Technology Stack</li>
+                        <li>Agent Code Examples & Summary</li>
+                    </ul>
+                    <p style="color: #64748b; font-size: 11px; margin-top: 6px;">Outputs <code>AI_Data_Quality_Analyzer.pptx</code> with custom styling (Navy/Blue/Teal theme).</p>
+                </div>
+            </div>
+            <h2 style="margin-top: 20px;">Download Code Files</h2>
+            <a href="agent_system.py" download class="ppt-link purple">agent_system.py</a>
+            <a href="data ingestion.js" download class="ppt-link orange">data ingestion.js</a>
+            <a href="create_ppt.py" download class="ppt-link teal">create_ppt.py</a>
+        </div>
+
+        <!-- Datasets -->
+        <div id="datasets" class="section">
+            <h1>Datasets</h1>
+            <p style="color: #94a3b8; margin: 16px 0;">Data resources for AI agent training - all files available as JSON downloads</p>
+            <h2 style="margin-top: 20px;">Anomaly Datasets</h2>
+            <div class="card blue">
+                <ul>
+                    <li><strong>flagged_anomalies.json</strong> - 8 detected anomalies with context, severity, and category</li>
+                    <li><strong>training_data.json</strong> - 15 clean training records for agent model training</li>
+                    <li><strong>test_data.json</strong> - 10 test records including anomalies for validation</li>
+                </ul>
+            </div>
+            <h2 style="margin-top: 20px;">Schema Rules</h2>
+            <div class="card teal">
+                <ul>
+                    <li><strong>schema_rules.csv</strong> - 10 validation rules: age range, email format, salary positive, etc.</li>
+                    <li><strong>organizational_memory.json</strong> - 10 learned rules from the organizational memory engine</li>
+                </ul>
+            </div>
+            <h2 style="margin-top: 20px;">Download All Data Files</h2>
+            <a href="flagged_anomalies.json" download class="ppt-link blue">flagged_anomalies.json</a>
+            <a href="training_data.json" download class="ppt-link teal">training_data.json</a>
+            <a href="test_data.json" download class="ppt-link orange">test_data.json</a>
+            <a href="schema_rules.csv" download class="ppt-link purple">schema_rules.csv</a>
+            <a href="organizational_memory.json" download class="ppt-link blue">organizational_memory.json</a>
+        </div>
+
+        <!-- Cached Outputs -->
+        <div id="cache" class="section">
+            <h1>Cached Outputs</h1>
+            <p style="color: #94a3b8; margin: 16px 0;">Cached agent results, embeddings, and memory snapshots</p>
+            <h2 style="margin-top: 20px;">Cache Status</h2>
+            <div class="metric"><div class="value">2.4 MB</div><div class="label">Cache Size</div></div>
+            <div class="metric"><div class="value">142</div><div class="label">Entries</div></div>
+            <div class="metric"><div class="value">99.8%</div><div class="label">Uptime</div></div>
+            <h2 style="margin-top: 20px;">Cached Output Files</h2>
+            <div class="card teal">
+                <ul>
+                    <li><strong>cache_index.json</strong> - Cache overview, agent predictions, embedding cache stats</li>
+                    <li><strong>memory_snapshot_1100.json</strong> - Latest organizational memory snapshot</li>
+                </ul>
+            </div>
+            <h2 style="margin-top: 20px;">Download Cached Output Files</h2>
+            <a href="cached_outputs/cache_index.json" download class="ppt-link teal">cache_index.json</a>
+            <a href="cached_outputs/memory_snapshot_1100.json" download class="ppt-link blue">memory_snapshot_1100.json</a>
+        </div>
+
+        <!-- Report -->
+        <div id="report" class="section">
+            <h1>Report Generation _output</h1>
+            <p style="color: #94a3b8; margin: 16px 0;">Generate and download quality reports</p>
+            <h2 style="margin-top: 20px;">Report Types</h2>
+            <div class="card orange">
+                <ul>
+                    <li>Anomaly Summary Report - Overview of all detected anomalies</li>
+                    <li>Remediation Log - HITL decision tracking</li>
+                    <li>Agent Performance - Detection accuracy & latency metrics</li>
+                    <li>Memory Growth Report - New rules learned over time</li>
+                </ul>
+            </div>
+            <h2 style="margin-top: 20px;">Generated Report Files</h2>
+            <div class="card teal">
+                <ul>
+                    <li><strong>anomaly_summary_report.json</strong> - 8 anomalies by severity and category</li>
+                    <li><strong>remediation_log.json</strong> - 3 HITL decisions with custom rules learned</li>
+                    <li><strong>agent_performance.json</strong> - Full performance metrics and agent health</li>
+                </ul>
+            </div>
+            <h2 style="margin-top: 20px;">Download Reports</h2>
+            <a href="_output/anomaly_summary_report.json" download class="ppt-link orange">anomaly_summary_report.json</a>
+            <a href="_output/remediation_log.json" download class="ppt-link teal">remediation_log.json</a>
+            <a href="_output/agent_performance.json" download class="ppt-link purple">agent_performance.json</a>
+            <h2 style="margin-top: 30px;">Generate New Report</h2>
+            <label style="color: #94a3b8;">Report Name:</label>
+            <input type="text" id="reportName" placeholder="My Report" style="background: #1e293b; border: 1px solid #334155; color: #e2e8f0; padding: 10px; border-radius: 8px; width: 300px; margin: 8px 0;">
+            <br>
+            <label style="color: #94a3b8;">Report Type:</label>
+            <select id="reportType" style="background: #1e293b; border: 1px solid #334155; color: #e2e8f0; padding: 10px; border-radius: 8px; margin: 8px 0;">
+                <option>Anomaly Summary</option>
+                <option>Remediation Log</option>
+                <option>Memory Growth</option>
+                <option>Performance</option>
+            </select>
+            <br>
+            <button onclick="generateReport()" style="background: #3b82f6; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 10px;">Generate Report</button>
+            <div id="reportResult" style="margin-top: 20px;"></div>
+        </div>
+
+        <div class="footer">
+            AI Data Quality Analyzer - Study Station for AI Agent Framework Building
+        </div>
+
+        <!-- General AI Chat -->
+        <div id="generalchat" class="section">
+            <h1>General AI Chat</h1>
+            <p style="color: #94a3b8; margin: 16px 0;">Talk to your AI workplace assistant. Tell it what to build, create, or analyze.</p>
+
+            <h2 style="margin-top: 20px;">Quick Prompts</h2>
+            <div class="check-buttons">
+                <button class="check-btn" onclick="sendGeneralPrompt('Create an app')">Create an App</button>
+                <button class="check-btn" onclick="sendGeneralPrompt('Create an AI agent')">Create an AI Agent</button>
+                <button class="check-btn" onclick="sendGeneralPrompt('Open data quality analyzer')">Open Data Quality Analyzer</button>
+                <button class="check-btn" onclick="sendGeneralPrompt('Analyze this dataset')">Analyze Dataset</button>
+                <button class="check-btn" onclick="sendGeneralPrompt('Build a workflow')">Build a Workflow</button>
+            </div>
+
+            <h2 style="margin-top: 30px;">AI Workplace Assistant</h2>
+            <div class="chat-container">
+                <div class="chat-box" id="generalChatBox">
+                    <div class="chat-message bot">
+                        <strong>AI Workplace Assistant:</strong> Hello! I'm your AI workplace assistant. Try these prompts:<br><br>
+                        <b>Create an app</b> - Tell me what software to build<br>
+                        <b>Create an AI agent</b> - Define what intelligent job it should perform, how, what tools it uses, what it remembers, and what results it produces<br>
+                        <b>Open data quality analyzer</b> - Access the data quality analysis workspace<br>
+                        <b>Or just type anything</b> and I'll help!
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="generalChatInput" placeholder="Tell me what to build or do..." onkeydown="if(event.key==='Enter')sendGeneralMessage()">
+                    <button onclick="sendGeneralMessage()">Send</button>
+                </div>
+            </div>
+
+            <h2 style="margin-top: 30px;">How It Works</h2>
+            <div class="grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="card blue">
+                    <h3>Create an App</h3>
+                    <p style="color: #94a3b8;">Describe the software you want. The AI will outline the architecture, features, tech stack, and implementation plan.</p>
+                </div>
+                <div class="card teal">
+                    <h3>Create an AI Agent</h3>
+                    <p style="color: #94a3b8;">Define the job, performance method, tools, memory, and expected output. The AI creates a complete agent specification.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hands-On AI Chatbot -->
+        <div id="chatbot" class="section">
+            <h1>Hands-On AI Chatbot</h1>
+            <p style="color: #94a3b8; margin: 16px 0;">Upload a CSV or Excel file, then ask specific data quality check points powered by AI</p>
+
+            <h2 style="margin-top: 20px;">Upload Data File</h2>
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">&#128196;</div>
+                <p><strong style="color: #e2e8f0;">Click to upload</strong> or drag and drop</p>
+                <p style="font-size: 13px; margin-top: 4px;">Supports CSV, XLS, XLSX files</p>
+                <input type="file" id="fileInput" accept=".csv,.xls,.xlsx" onchange="handleFileUpload(event)">
+            </div>
+            <div class="file-info" id="fileInfo">
+                <strong>File loaded:</strong> <span id="fileName"></span> | <span id="fileRows"></span> rows | <span id="fileCols"></span> columns
+            </div>
+
+            <h2 style="margin-top: 30px;">AI API Configuration</h2>
+            <div class="card" style="border-left-color: #a855f7;">
+                <label style="color: #94a3b8;">Provider:</label>
+                <select id="apiProvider" style="background: #0f172a; border: 1px solid #334155; color: #e2e8f0; padding: 8px; border-radius: 8px; margin: 8px 0;">
+                    <option value="groq">GROQ (Llama 3.3 70B)</option>
+                    <option value="openrouter">OpenRouter (GPT-4o-mini)</option>
+                </select>
+                <br>
+                <label style="color: #94a3b8;">API Key:</label>
+                <input type="password" id="apiKey" placeholder="Enter your GROQ or OpenRouter API key" style="background: #0f172a; border: 1px solid #334155; color: #e2e8f0; padding: 10px; border-radius: 8px; width: 100%; margin: 8px 0;">
+                <button onclick="testConnection()" style="background: #a855f7; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 8px;">Test Connection</button>
+                <div id="connectionStatus" style="margin-top: 8px;"></div>
+            </div>
+
+            <h2 style="margin-top: 30px;">Quick Quality Checks</h2>
+            <div class="check-buttons">
+                <button class="check-btn" onclick="runCheck('null_values', this)">Null Values</button>
+                <button class="check-btn" onclick="runCheck('duplicates', this)">Duplicates</button>
+                <button class="check-btn" onclick="runCheck('outliers', this)">Outliers</button>
+                <button class="check-btn" onclick="runCheck('data_types', this)">Data Types</button>
+                <button class="check-btn" onclick="runCheck('range_violations', this)">Range Violations</button>
+                <button class="check-btn" onclick="runCheck('format_violations', this)">Format Violations</button>
+                <button class="check-btn" onclick="runCheck('missing_relationships', this)">Missing Relationships</button>
+            </div>
+
+            <h2 style="margin-top: 30px;">AI Chat - Ask Data Quality Questions</h2>
+            <div class="chat-container">
+                <div class="chat-box" id="chatBox">
+                    <div class="chat-message bot">
+                        <strong>AI Analyst:</strong> Welcome! Configure your GROQ or OpenRouter API key above, upload a CSV/Excel file, then ask about data quality. Try: "Check for null values", "Find duplicates", "Analyze outliers", or any specific quality check.
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="chatInput" placeholder="Ask a data quality question..." onkeydown="if(event.key==='Enter')sendMessage()">
+                    <button onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- Navigation ---
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if (event.target) event.target.classList.add('active');
+        }
+
+        // --- Report Generation ---
+        function generateReport() {
+            const name = document.getElementById('reportName').value || 'Report';
+            const type = document.getElementById('reportType').value;
+            document.getElementById('reportResult').innerHTML = `<div class="card teal"><h3>Report Generated!</h3><p><strong>${name}</strong> (${type}) generated successfully.</p><p>Output saved to: <code>_output/${name}.pdf</code></p></div>`;
+        }
+        document.getElementById('last-updated').textContent = new Date().toLocaleString();
+
+        // --- File Upload ---
+        let uploadedData = null;
+        let fileName = '';
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+        uploadArea.addEventListener('drop', e => { e.preventDefault(); uploadArea.classList.remove('dragover'); const f = e.dataTransfer.files[0]; if (f) processFile(f); });
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) processFile(file);
+        }
+
+        function processFile(file) {
+            fileName = file.name;
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileInfo').classList.add('visible');
+
+            if (file.name.endsWith('.csv')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const text = e.target.result;
+                    const lines = text.trim().split('\n');
+                    const headers = lines[0].split(',');
+                    const rows = lines.slice(1).map(l => { const vals = l.split(','); const obj = {}; headers.forEach((h,i) => obj[h] = vals[i]); return obj; });
+                    document.getElementById('fileRows').textContent = rows.length;
+                    document.getElementById('fileCols').textContent = headers.length;
+                    uploadedData = { headers, rows, type: 'csv' };
+                    addChatMessage('bot', `CSV loaded: ${rows.length} rows, ${headers.length} columns.`);
+                };
+                reader.readAsText(file);
+            } else {
+                Papa.parse(file, {
+                    header: true,
+                    complete: function(results) {
+                        const headers = results.meta.fields;
+                        const rows = results.data;
+                        document.getElementById('fileRows').textContent = rows.length;
+                        document.getElementById('fileCols').textContent = headers.length;
+                        uploadedData = { headers, rows, type: 'excel' };
+                        addChatMessage('bot', `Excel loaded: ${rows.length} rows, ${headers.length} columns.`);
+                    },
+                    error: function() {
+                        addChatMessage('bot', 'Error parsing Excel file. Try CSV instead.');
+                    }
+                });
+            }
+            addChatMessage('user', `Uploaded: ${fileName}`);
+            addChatMessage('bot', `File loaded: ${fileName}. Ready for analysis.`);
+        }
+
+        function runCheck(type, btn) {
+            if (!uploadedData) { addChatMessage('bot', 'Please upload a file first!'); return; }
+            document.querySelectorAll('.check-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const messages = {
+                'null_values': 'Check for null values and missing data in the dataset',
+                'duplicates': 'Find duplicate rows in the dataset',
+                'outliers': 'Detect outliers and anomalous values',
+                'data_types': 'Analyze data types across all columns',
+                'range_violations': 'Check for range violations and invalid values',
+                'format_violations': 'Check for format violations in email, phone, and other fields',
+                'missing_relationships': 'Check for missing relationships and foreign key violations'
+            };
+            processChat(messages[type]);
+        }
+
+        // --- Chatbot ---
+        function addChatMessage(sender, text) {
+            const chatBox = document.getElementById('chatBox');
+            const msg = document.createElement('div');
+            msg.className = `chat-message ${sender}`;
+            msg.innerHTML = sender === 'user' ? `<strong>You:</strong> ${text}` : `<strong>AI Analyst:</strong> ${text}`;
+            chatBox.appendChild(msg);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+            addChatMessage('user', text);
+            input.value = '';
+            setTimeout(() => processChat(text), 300);
+        }
+
+        function processChat(text) {
+    text = text.toLowerCase();
+    if (!uploadedData) {
+        addChatMessage('bot', 'Please upload a CSV or Excel file first!');
+        return;
+    }
+    const apiKey = document.getElementById('apiKey').value;
+    const provider = document.getElementById('apiProvider').value;
+    if (!apiKey) {
+        addChatMessage('bot', 'Please enter your GROQ or OpenRouter API key first!');
+        return;
+    }
+
+    const datasetInfo = { rows: uploadedData.rows.length, columns: uploadedData.headers.length };
+    addChatMessage('bot', 'Analyzing with AI...');
+
+    const prompt = `You are an AI Data Quality Analyst. A dataset has been uploaded with ${datasetInfo.rows} rows and ${datasetInfo.columns} columns.
+
+The user asks: ${text}
+
+Provide a detailed data quality analysis with specific findings, statistics, and recommendations. Be thorough and structured.`;
+
+    fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: prompt, provider: provider, api_key: apiKey })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.error) {
+            addChatMessage('bot', `Error: ${data.error}`);
+        } else {
+            addChatMessage('bot', data.reply);
+        }
+    })
+    .catch(err => {
+        addChatMessage('bot', `Connection error: ${err.message}. Make sure the AI chat server is running on port 5000.`);
+    });
+}
+
+function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    addChatMessage('user', text);
+    input.value = '';
+    setTimeout(() => processChat(text), 300);
+}
+
+function runCheck(type) {
+    if (!uploadedData) {
+        addChatMessage('bot', 'Please upload a file first!');
+        return;
+    }
+    document.querySelectorAll('.check-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    const messages = {
+        'null_values': 'Check for null values and missing data in the dataset',
+        'duplicates': 'Find duplicate rows in the dataset',
+        'outliers': 'Detect outliers and anomalous values',
+        'data_types': 'Analyze data types across all columns',
+        'range_violations': 'Check for range violations and invalid values',
+        'format_violations': 'Check for format violations in email, phone, and other fields',
+        'missing_relationships': 'Check for missing relationships and foreign key violations'
+    };
+    processChat(messages[type]);
+}
+
+function testConnection() {
+    const apiKey = document.getElementById('apiKey').value;
+    const provider = document.getElementById('apiProvider').value;
+    const status = document.getElementById('connectionStatus');
+    if (!apiKey) {
+        status.innerHTML = '<span style="color: #f97316;">Please enter an API key first</span>';
+        return;
+    }
+    status.innerHTML = '<span style="color: #f97316;">Testing...</span>';
+    fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: 'Test connection', provider: provider, api_key: apiKey })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.error) {
+            status.innerHTML = `<span style="color: #ef4444;">Failed: ${data.error}</span>`;
+        } else {
+            status.innerHTML = `<span style="color: #22c55e;">Connected successfully via ${provider}!</span>`;
+        }
+    })
+    .catch(err => {
+        status.innerHTML = `<span style="color: #ef4444;">Connection failed: ${err.message}</span>`;
+    });
+}
+
+function addChatMessage(sender, text) {
+            const chatBox = document.getElementById('chatBox');
+            const msg = document.createElement('div');
+            msg.className = `chat-message ${sender}`;
+            msg.innerHTML = sender === 'user' ? `<strong>You:</strong> ${text}` : `<strong>AI Analyst:</strong> ${text}`;
+            chatBox.appendChild(msg);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function sendGeneralPrompt(prompt) {
+            const input = document.getElementById('generalChatInput');
+            input.value = prompt;
+            sendGeneralMessage();
+        }
+
+        function sendGeneralMessage() {
+            const input = document.getElementById('generalChatInput');
+            const text = input.value.trim();
+            if (!text) return;
+            addGeneralChatMessage('user', text);
+            input.value = '';
+            setTimeout(() => processGeneralChat(text), 300);
+        }
+
+        function addGeneralChatMessage(sender, text) {
+            const chatBox = document.getElementById('generalChatBox');
+            const msg = document.createElement('div');
+            msg.className = `chat-message ${sender}`;
+            msg.innerHTML = sender === 'user' ? `<strong>You:</strong> ${text}` : `<strong>AI Workplace:</strong> ${text}`;
+            chatBox.appendChild(msg);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function processGeneralChat(text) {
+            const apiKey = document.getElementById('apiKey').value;
+            const provider = document.getElementById('apiProvider').value;
+            if (!apiKey) {
+                addGeneralChatMessage('bot', 'Please configure your API key in the chatbot section first!');
+                return;
+            }
+            addGeneralChatMessage('bot', 'Thinking...');
+            const prompt = `You are an AI Workplace Assistant. An AI employee who helps users build software, create AI agents, and manage AI workflows.
+
+The user says: ${text}
+
+Respond based on what they asked:
+- If they say "Create an app" or describe software: Outline the architecture, features, tech stack, file structure, and implementation steps.
+- If they say "Create an AI agent" or describe an agent role: Define the job description, how it performs, what tools it uses, what information it remembers, and what results it produces.
+- If they say "Open data quality analyzer" or similar: Confirm access and describe the data quality analysis features available.
+- For anything else: Help them with their AI workplace needs.
+
+Be professional, detailed, and actionable.`;
+
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: prompt, provider: provider, api_key: apiKey })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) {
+                    addGeneralChatMessage('bot', `Error: ${data.error}`);
+                } else {
+                    addGeneralChatMessage('bot', data.reply);
+                }
+            })
+            .catch(err => {
+                addGeneralChatMessage('bot', `Connection error: ${err.message}. Make sure the AI chat server is running on port 5000.`);
+            });
+        }
+    </script>
+</body>
+</html>

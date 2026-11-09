@@ -1,0 +1,11 @@
+id,rules,description,severity,active
+age_range,age BETWEEN 0 AND 120,Age must be within valid human range,high,true
+email_format,email LIKE '%_@_%.__%',Email must match standard email format,medium,true
+phone_length,LENGTH(phone) = 10,Phone number must be exactly 10 digits,medium,true
+salary_positive,salary > 0,Salary must be a positive value,critical,true
+education_age,IF education = 'PhD' THEN age > 22,A PhD holder must be older than 22,high,true
+rural_village,IF rural_urban = 'Rural' THEN village IS NOT NULL,Rural addresses must have a village,medium,true
+date_past,date_joined <= CURRENT_DATE,Date joined cannot be in the future,medium,true
+department_not_null,department IS NOT NULL AND department != '',Department must not be null or empty,low,true
+age_minimum,age >= 18,Employee must be at least 18 years old,high,true
+salary_range,salary BETWEEN 15000 AND 200000,Salary must be within reasonable range,medium,true

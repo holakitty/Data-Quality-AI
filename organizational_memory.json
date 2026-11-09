@@ -1,0 +1,12 @@
+[
+  "If Education is PhD, Age must be > 22",
+  "If Rural/Urban is Rural, Village cannot be NULL",
+  "Rural addresses must always have a Village field populated",
+  "Age must be between 0 and 120",
+  "Email must contain @ and domain suffix",
+  "Phone number must be exactly 10 digits",
+  "Salary cannot be negative",
+  "Date joined cannot be in the future",
+  "Department must not be empty",
+  "Employee age must be at least 18"
+]
